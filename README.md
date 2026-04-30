@@ -85,3 +85,7 @@ sudo aircrack-ng <CAPTURE_FILE>.cap -w /usr/share/wordlists/rockyou.txt
 The key is: `cookie123`
 
 ---
+
+## TODO
+
+- Add a TCP connection between client and server. Attacker, once he found the key, can access the data.
