@@ -19,5 +19,5 @@ fi
 echo "[CLIENT] Bringing up wlan1..."
 ip link set wlan1 up
 
-echo "[CLIENT] Connecting to wifi-old (WEP)..."
+echo "[CLIENT] Connecting to wifi-lab (WPA2)..."
 exec wpa_supplicant -Dnl80211 -iwlan1 -c /etc/wpa_supplicant/wpa_supplicant.conf

