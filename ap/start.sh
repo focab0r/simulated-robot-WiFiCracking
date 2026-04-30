@@ -14,5 +14,5 @@ iw dev
 echo "[AP] Bringing up wlan0..."
 ip link set wlan0 up
 
-echo "[AP] Starting hostapd (WEP AP on wlan0, SSID: wifi-old)..."
+echo "[AP] Starting hostapd (WPA2 AP on wlan0, SSID: wifi-old)..."
 exec hostapd /etc/hostapd/hostapd.conf
