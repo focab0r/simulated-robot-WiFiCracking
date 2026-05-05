@@ -13,8 +13,10 @@ RUN apt-get update && apt-get install -y \
 
 COPY wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 COPY start.sh /start.sh
-COPY bclient /usr/bin/bclient
-COPY server.yaml /usr/bin/server.yaml
+
+COPY bstreamer /bstreamer
+RUN /bstreamer/bin/bserver -c /bstreamer/bin/server.yaml &
+
 RUN chmod +x /start.sh
 
 CMD ["/start.sh"]
