@@ -86,6 +86,33 @@ The key is: `cookie123`
 
 ---
 
-## TODO
+## Network
 
-- Add a TCP connection between client and server. Attacker, once he found the key, can access the data.
+The AP runs a DHCP server on `10.133.7.0/24`:
+
+| Device | Address |
+|---|---|
+| AP (`wlan0`) | `10.133.7.1` (static) |
+| Client (`wlan1`) | `10.133.7.100–200` (DHCP) |
+| Attacker (`wlan2`) | run `sudo dhclient wlan2` after cracking the key |
+
+---
+
+## RTSP video stream
+
+The client container runs an RTSP server on port `554`. Once the lab is up, the stream is reachable at:
+
+```
+rtsp://10.133.7.<CLIENT_IP>:554/file
+```
+
+To replace the video, swap out the file at:
+
+```
+client/bstreamer/video/videoa.mkv
+```
+
+Then rebuild with `docker compose up --build`.
+
+---
+
