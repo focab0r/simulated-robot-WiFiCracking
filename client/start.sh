@@ -21,6 +21,7 @@ fi
 
 echo "[CLIENT] Bringing up wlan1..."
 ip link set wlan1 up
+ip addr add 10.133.7.86/24 dev wlan1
 
 echo "[CLIENT] Connecting to wifi-lab (WPA2)..."
 wpa_supplicant -B -Dnl80211 -iwlan1 -c /etc/wpa_supplicant/wpa_supplicant.conf
@@ -39,9 +40,6 @@ if ! wpa_cli -iwlan1 status 2>/dev/null | grep -q "wpa_state=COMPLETED"; then
     echo "[CLIENT] ERROR: Failed to associate with wifi-lab."
     exit 1
 fi
-
-echo "[CLIENT] Requesting IP via DHCP..."
-dhclient -v wlan1
 
 echo "[CLIENT] Network ready:"
 ip addr show wlan1

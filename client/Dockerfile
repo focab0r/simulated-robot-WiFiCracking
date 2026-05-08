@@ -4,7 +4,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     wpasupplicant \
-    isc-dhcp-client \
     iproute2 \
     net-tools \
     iputils-ping \

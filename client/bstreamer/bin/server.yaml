@@ -1,5 +1,5 @@
 network:
-  bind: ["localhost:554"]
+  bind: ["10.133.7.86:554"]
   sndbuf: 131072
   threads: 1
   watermarks:

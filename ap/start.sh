@@ -7,7 +7,6 @@ cleanup() {
     _cleaned=1
     echo "[AP] Shutting down..."
     [ -n "$HOSTAPD_PID" ] && kill "$HOSTAPD_PID" 2>/dev/null; wait "$HOSTAPD_PID" 2>/dev/null || true
-    pkill dnsmasq 2>/dev/null || true
     modprobe -r mac80211_hwsim 2>/dev/null \
         && echo "[AP] mac80211_hwsim unloaded — virtual interfaces removed." \
         || echo "[AP] Warning: could not unload mac80211_hwsim (may still be in use)."
@@ -25,9 +24,6 @@ iw dev
 echo "[AP] Bringing up wlan0..."
 ip link set wlan0 up
 ip addr add 10.133.7.1/24 dev wlan0
-
-echo "[AP] Starting dnsmasq (DHCP 10.133.7.100-200 on 10.133.7.0/24)..."
-dnsmasq -C /etc/dnsmasq.conf
 
 echo "[AP] Starting hostapd (WPA2 AP on wlan0, SSID: wifi-lab)..."
 hostapd /etc/hostapd/hostapd.conf &
