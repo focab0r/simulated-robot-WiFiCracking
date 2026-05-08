@@ -11,7 +11,7 @@ Host Kernel (mac80211_hwsim)
 
 All three virtual radios are on the same simulated "air" — they all see each other's frames.
 
----
+
 
 ## Prerequisites (Kali host)
 
@@ -25,7 +25,7 @@ Make sure `mac80211_hwsim` is available:
 modinfo mac80211_hwsim   # should print module info
 ```
 
----
+
 
 ## Start the lab
 
@@ -41,7 +41,7 @@ iw dev
 # Should show wlan0, wlan1, wlan2
 ```
 
----
+
 
 ## Attack from Kali (wlan2)
 
@@ -82,11 +82,10 @@ sudo aircrack-ng <CAPTURE_FILE>.cap -w /usr/share/wordlists/rockyou.txt
 
 > **Note:** Actually connecting `wlan2` to the AP would break the simulated environment
 > (mac80211_hwsim doesn't handle a third associated client cleanly alongside the monitor
-> interface). Instead, run the provided helper script, which assigns the attacker's IP
-> directly on the host without going through the WPA2 association:
+> interface). Instead, run the provided helper script, which will simulate the connection
 
 ```bash
-sudo ./connectToWifi.sh
+./connectToWifi.sh
 ```
 
 ### 7. Discover the target
@@ -102,13 +101,13 @@ nmap 10.133.7.0/24 -sT
 ffplay -rtsp_transport tcp rtsp://10.133.7.86:554/file
 ```
 
----
+
 
 ## WPA2 key in this lab
 
 The key is: `cookie123`
 
----
+
 
 ## Network
 
@@ -118,9 +117,9 @@ All devices use static IPs on `10.133.7.0/24`:
 |---|---|
 | AP (`wlan0`) | `10.133.7.1` |
 | Client (`wlan1`) | `10.133.7.86` |
-| Attacker (host) | `10.133.7.99` (set by `connectToWifi.sh`) |
+| Attacker (`wlan2`) | `???` (not needed) |
 
----
+
 
 ## RTSP video stream
 
@@ -132,5 +131,5 @@ rtsp://10.133.7.86:554/file
 
 To replace the video, swap out `client/bstreamer/video/videoa.mkv` and rebuild with `docker compose up --build`.
 
----
+
 
