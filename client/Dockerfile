@@ -4,18 +4,19 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     wpasupplicant \
+    isc-dhcp-client \
     iproute2 \
     net-tools \
     iputils-ping \
     iw \
     kmod \
+    default-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 COPY wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 COPY start.sh /start.sh
 
 COPY bstreamer /bstreamer
-RUN /bstreamer/bin/bserver -c /bstreamer/bin/server.yaml &
 
 RUN chmod +x /start.sh
 
